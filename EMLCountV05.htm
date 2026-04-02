@@ -8,7 +8,7 @@
 <!-- >>>For original webpage >>> -->
 		<meta charset="utf-8"/>
 		<meta http-equiv="Content-Type" content="text/html"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+<!--		<meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
 <!-- <<<For original webpage <<< -->
 <!-- >>> These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html >>>
   	<meta name="mobile-web-app-capable" content="no">
@@ -16,14 +16,14 @@
   	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
  <<< These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html <<< -->
 
-<!-- >>>For Capacitor/Iconic/Angular --> 
+<!-- >>>For Capacitor/Iconic/Angular >>>
   <base href="/" />
 	
 	<meta name="color-scheme" content="light dark" />
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="msapplication-tap-highlight" content="no" />
-<!--	<link rel="icon" type="image/png" href="192x192.png" /> -->
- <!-- <<< For Capacitor/Iconic/Angular <<< -->
+	<link rel="icon" type="image/png" href="192x192.png" />
+ <<< For Capacitor/Iconic/Angular <<< -->
 
 	    
 <!-- >>>For Capacitor/Iconic/Angular >>> 
@@ -36,46 +36,50 @@
  <<< For Capacitor/Iconic/Angular <<< -->
 
 <!-- >>>For pwabuilder >>> -->
-<!-- <base href="/" /> -->
+	<!-- >>> set root directory for paths to other files >>> -->
+	<base href="/" />
+	<!-- <<< set root directory for paths to other files <<< -->
 
-  <!-- This meta viewport ensures the webpage's dimensions change according to the device it's on. This is called Responsive Web Design.
-  <meta name="viewport"
-    content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-  <meta name="description" content="This is a PWA Starter app" />
+  <!-- >>> This meta viewport ensures the webpage's dimensions change according to the device it's on. This is called Responsive Web Design. >>> -->
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+  <meta name="description" content="This is an EML PWA for its Bluetooth Counter" />
 
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#181818" />
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f3f3" />
--->
-  <!-- These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html 
+  <!-- <<< This meta viewport ensures the webpage's dimensions change according to the device it's on. This is called Responsive Web Design. <<< -->
+	
+  <!-- >>> These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html >>>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="PWA Starter" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
--->
-  <!-- This tag is used by the PWA Starter CLI to identify template projects. Don't remove if you are using the CLI. 
-  <meta name="pwa-starter-template-identity" content="pwa-starter"/>
--->
-  <!-- Imports an icon to represent the document. 
-  <link rel="icon" href="/assets/icons/icon_24.png" type="image/png" />
--->
-  <!-- Imports the manifest to represent the web application. A web app must have a manifest to be a PWA. 
-  <link rel="manifest" href="/dist/manifest.json" />
--->
-  <!-- light mode and dark mode CSS 
-  <link rel="stylesheet" media="(prefers-color-scheme:light)"
-    href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/dist/themes/light.css">
-  <link rel="stylesheet" media="(prefers-color-scheme:dark)"
-    href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/dist/themes/dark.css"
-    onload="document.documentElement.classList.add('sl-theme-dark');">
--->
-<!--
+  <<< These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html <<< -->
+
+		<!-- >>> This tag is used by the PWA Starter CLI to identify template projects. Don't remove if you are using the CLI. >>>
+  	<meta name="pwa-starter-template-identity" content="pwa-starter"/>
+	<<< This tag is used by the PWA Starter CLI to identify template projects. Don't remove if you are using the CLI. <<< -->
+
+	<!-- >>> Imports an icon to represent the document. >>> -->
+  <link rel="icon" href="EMLicon192X192.png" type="image/png" />
+	<!-- <<< Imports an icon to represent the document. <<<-->
+  
+	<!-- >>> Imports the manifest to represent the web application. A web app must have a manifest to be a PWA. >>> -->
+  <link rel="manifest" href="manifest.json" />
+	<!-- <<< Imports the manifest to represent the web application. A web app must have a manifest to be a PWA. <<< -->
+
+	<!-- >>> light mode and dark mode CSS >>>
+  <link rel="stylesheet" media="(prefers-color-scheme:light)" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/dist/themes/light.css">
+  <link rel="stylesheet" media="(prefers-color-scheme:dark)"  href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/dist/themes/dark.css" onload="document.documentElement.classList.add('sl-theme-dark');">
+			<<< light mode and dark mode CSS <<< -->
+			
+	<!-- >>> not sure what this is for and not sure it is required so leave it commented out for now >>>
   <script type="module">
     import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
     setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/');
   </script>
   <script type="module" src="/src/app-index.ts"></script>
--->
+			<<< not sure what this is for and not sure it is required so leave it commented out for now <<< -->
 
-<!-- <<<For pwabuilder <<< -->
+<!-- <<< For pwabuilder <<< -->
 
 <!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HTML >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>-->
 <style>
@@ -332,9 +336,9 @@
 </head>
 
 <body>
-<!-- >>> For angular+iconic >>> -->
+<!-- >>> For angular+iconic >>>
  	<app-root></app-root>
-<!-- <<< For angular+iconic <<< -->
+<<< For angular+iconic <<< -->
 
 <!-- >>> For react+iconic >>>
 		<div id="root"></div>
