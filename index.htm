@@ -798,6 +798,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       								 {services: [btServiceId]}
       							]
       					});
+      			//>start disconnection notifications in case disconnection happens unexpectedly>
+							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
 						//>Device chosen, connect to it>
 							btError = "C";
 							btServer=await btDevice.gatt.connect();
@@ -809,8 +811,6 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 							btError = "E";
 							btCharacteristic=await btService.getCharacteristic(btCharacteristicId);
 							
-      			//>start disconnection notifications in case disconnection happens unexpectedly>
-							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
       			//>>> Got count characteristic (which should have read, write, and notify attributes enabled so start count notifications >>>
 							btError = "F";
       				await btCharacteristic.startNotifications();
@@ -844,7 +844,7 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       			{
       				try
       					{
-		                //stop disconnection events (otherwise disconnecting here will cause a disconnection event calling onDisconnect
+								//stop disconnection events (otherwise disconnecting here will cause a disconnection event calling onDisconnect
 									await btCharacteristic.stopNotifications();
       						btDevice.removeEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
 
@@ -1365,7 +1365,7 @@ function updateResultLogTable(resultStartPosition)
 		{
 			let syncVal = Uint16Array.of(0,0,0); //create an array of 3 intergers, all 0
 			syncVal[1] = Math.floor(Date.now()/1000) - startTime; //put the local time (in seconds) where the received tip time data goes 
-			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0)) //don't send if number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
+			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0) && btDevice.gatt.connected ) //don't send if not connected or number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
 				{
 //					console.log("Syncing Time " + syncVal[1]);
 					await btCharacteristic.writeValue(syncVal); //send the time to the counter
@@ -1459,28 +1459,29 @@ function blankCount()
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> onDisconnect >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	async function onDisconnect(event)
 	{
+	displaySection1Status(">>> FOR DEBUG ONLY >>> Disconnection event detected","red");
 		try
 			{
 				await btDevice.gatt.connect(); //wait while trying to connect to device again
 			}
-      	catch(error)
-      		 {
-      		//disconnected>
-      			console.log('Error11: ' + error.code );
-      			if(error.code == 19)//this is a network error meaning bluetooth has been turned off
-      				{
-     					console.log('Error12: Disconnected');
+    catch(error)
+    	{
+			//disconnected>
+      	console.log('Error11: ' + error.code );
+      	if(error.code == 19)//this is a network error meaning bluetooth has been turned off
+      		{
+						console.log('Error12: Disconnected');
 						displaySection1Status("Disconnected. Please ensure Bluetooth is enabled & counter is in range and powered up","red");
 						enableDisableButton('button1',disable);
 						enableDisableCount(disable); //grey out count and buttons
 						waitForBluetoothEnable=setInterval( function()
-      						{
+      				{
 								if(document.getElementById('button2').innerHTML==button2SecondaryString)
 									{
 										enableDisableButton('button2',disable);
 									}
 								let btConnectionStatus = btDevice.gatt.connect();
-      							btConnectionStatus.then
+      					btConnectionStatus.then
 							//reconnected>
       							(async result =>
       								{
