@@ -786,7 +786,7 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 			var button = document.getElementById('button1');
       if(document.getElementById('button1').innerHTML === button1PrimaryString) //if no device is connected
       	{
-					btError = "H";
+					btError = "B";
       		try
       			{
 						//>Choose device>
@@ -799,29 +799,27 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       							]
       					});
 						//>Device chosen, connect to it>
-							btError = "B";
+							btError = "C";
 							btServer=await btDevice.gatt.connect();
       			//Connected, ask for the count service
-							btError = "C";
+							btError = "D";
 							btService = await btServer.getPrimaryService(btServiceId);
 							
       			//>Got the service, ask for count characteristic>
-							btError = "C";
+							btError = "E";
 							btCharacteristic=await btService.getCharacteristic(btCharacteristicId);
 							
       			//>start disconnection notifications in case disconnection happens unexpectedly>
 							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
       			//>>> Got count characteristic (which should have read, write, and notify attributes enabled so start count notifications >>>
-							btError = "D";
+							btError = "F";
       				await btCharacteristic.startNotifications();
 						// Enable notification events from counter>
-							btError = "E";
+							btError = "G";
 							await btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
 						//ensure counter is reset>
-							btError = "F";
-//							let resetVal=Uint8Array.of(6); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
-							let resetVal=Uint8Array.of(1,2,3,4,5,6); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
-							console.log("Reseting count " + resetVal[2] + resetVal[3]);
+							btError = "H";
+							let resetVal=Uint8Array.of(0,0,0,0,0,0); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
 							await btCharacteristic.writeValue(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
 						//Update display to indicate the device is connected>
 							button.innerText=button.textContent=button1SecondaryString; 				//>change button1 from 'Connect' 'Disconnect' (button1 is still selected from if statement above)
@@ -852,8 +850,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 
       					//>reset counter>
       						btCharacteristic.removeEventListener('characteristicvaluechanged',handleCountNotification);
-        		        //forget device>
-      						await btDevice.forget(); //forget device (so it's no longer 'Paired')
+        		        //forget device( forget only works if "Experimental Web Platform features" is enabled in chrome://flags>
+//      						await btDevice.forget(); //forget device (so it's no longer 'Paired')
 		            //Finally, tell device to disconnect
 									await btDevice.gatt.disconnect();
       					}
@@ -969,8 +967,7 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       			//Start count notifications again>
       				await btCharacteristic.startNotifications(); //start notifications again (when button2 saying 'Stop Count' was pressed it will have stopped notifications from the counter)
       				btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
-//      				let resetVal=Uint8Array.of(6); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
-							let resetVal=Uint8Array.of(6,5,4,3,2,1); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
+							let resetVal=Uint8Array.of(0,0,0,0,0,0); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
       				await btCharacteristic.writeValue(resetVal); //send a reset instruction to the counter which will respond with a noticifion which will update the counter display to all zeros
 						}
       		catch(error)
@@ -1305,8 +1302,7 @@ function updateResultLogTable(resultStartPosition)
       							{
       								localMinutes=Math.floor(((Date.now()/1000)-startTime)/60);
       								localSeconds=Math.floor(((Date.now()/1000)-startTime)%60);
-											console.log("Syncing time");
-//									syncTime(); //recieved time and local time can get out of sync so once a minute send local time to the counter so the counter and synchronize with it>
+											syncTime(); //recieved time and local time can get out of sync so once a minute send local time to the counter so the counter and synchronize with it>
       								localTimeDisplay();
       								if(countingFlag==0) //if the 'stop count' button has been pressed
 												{
@@ -1360,18 +1356,19 @@ function updateResultLogTable(resultStartPosition)
  	 	{
   			localMinutes=String(localMinutes).padStart(2,'0');
     		localSeconds=String(localSeconds).padStart(2,'0');
-			localTimeString = localMinutes + ":" + localSeconds;
-      		document.getElementById("localTimeValue").innerHTML=localTimeString;
+				localTimeString = localMinutes + ":" + localSeconds;
+      	document.getElementById("localTimeValue").innerHTML=localTimeString;
    	}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< localTimeDisplay <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> syncTime >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	async function syncTime() //the counter's time and the local time of the app's device can slowly get out of sync so periodically set counters time to the app devices localTime
 		{
-			let syncVal = Uint16Array.of(3); //create an array of 3 intergers, all 0
-			syncVal[1] = Math.floor(Date.now()/1000); //get the local time in seconds
-			if(syncVal[1] != 0) //don't send if number of seconds is 0 or counter will see it as a reset command
+			let syncVal = Uint16Array.of(0,0,0); //create an array of 3 intergers, all 0
+			syncVal[1] = Math.floor(Date.now()/1000) - startTime; //put the local time (in seconds) where the received tip time data goes 
+			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0)) //don't send if number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
 				{
-					await btCharacteristic.writeValue(syncVal); //send a reset instruction to the counter which will respond with a noticifion which will update the counter display to all zeros
+//					console.log("Syncing Time " + syncVal[1]);
+					await btCharacteristic.writeValue(syncVal); //send the time to the counter
 				}
 		}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< syncTime <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1473,7 +1470,7 @@ function blankCount()
       			if(error.code == 19)//this is a network error meaning bluetooth has been turned off
       				{
      					console.log('Error12: Disconnected');
-						displaySection1Status("Disconnected. Please ensure Bluetooth is enabled, Counter is in range and powered","red");
+						displaySection1Status("Disconnected. Please ensure Bluetooth is enabled & counter is in range and powered up","red");
 						enableDisableButton('button1',disable);
 						enableDisableCount(disable); //grey out count and buttons
 						waitForBluetoothEnable=setInterval( function()
