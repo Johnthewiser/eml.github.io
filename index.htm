@@ -467,7 +467,7 @@
 		</div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Status Line 1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 <!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Software version number >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   -->
-		<span class="spanStyle3">V0.6</span>
+		<span class="spanStyle3">V</span><span id="versionNumber" class="spanStyle3">0.7</span>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Software version number <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 </div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End of Section1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	-->
@@ -604,6 +604,7 @@ Past Counts
 		<p id="sectionTwoStatus">
 		</p>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Status Line 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
+<p> N.B. Number of past counts is limited to 5, for testing</p>
 		</div>
 <!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> End of Section2 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>	-->
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HTML <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	 -->
@@ -776,7 +777,6 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
     {
       nozzleSizeString = this.value;
     });
-
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> onScanButtonCLick >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	async function onScanButtonClick()
   	{
