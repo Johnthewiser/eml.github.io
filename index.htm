@@ -625,12 +625,15 @@ Past Counts
       let btDevice = null;
      //let	btServiceId = '19b10010-e8f2-537e-4f6c-d104768a1214';				//Arduino 'EML Rain Gauge' Count service
       let btServiceId='c1a8da08-1801-4e76-9a66-fe24dcdd5392';					//'EML Bluetooth Counter' Count service
+			let btGenericAccessServiceId= 0x1800;														//Generic access service for reading software revision number
      //let	btCharacteristicId = '19b10012-e8f2-537e-4f6c-d104768a1214';	//Arduino 'EML Rain Gauge' Count characteristic
       let btCharacteristicId='aec433d5-d7da-456e-bc1d-300fa61f0208';		//'EML Bluetooth Counter' Count characteristic
-      let btService=null;
+			let btCounterSWVCharacteristicId=0x2A28; //Generic attribute - software revision number
+       let btService=null;
       let btCharacteristic=null;
       let btValue = new Int8Array (6);
-      let countVal=0;
+			let btCounterSoftwareVersion = null;
+			let countVal=0;
       let lastCountVal=1;
       let startTime=null;
 			let minutesVal=null;
@@ -796,21 +799,33 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       						filters:
       							[
       								 {services: [btServiceId]}
-      							]
+      							],
+												optionalServices: [btGenericAccessServiceId]
       					});
       			//>start disconnection notifications in case disconnection happens unexpectedly>
 							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
 						//>Device chosen, connect to it>
 							btError = "C";
 							btServer=await btDevice.gatt.connect();
-      			//Connected, ask for the count service
+
+						//Connected, ask for the generic attribute service
+							btError = "I";
+	//						console.log("generic_access " + generic_access);
+							btService = await btServer.getPrimaryService(btGenericAccessServiceId);
+      			//>Got the service, ask for software revision characteristic>
+							btError = "J";
+							btCharacteristic = await btService.getCharacteristic(btCounterSWVCharacteristicId);
+							btCounterSoftwareVersion = await btCharacteristic.readValue(); //read the received software version characters
+							btCounterSoftwareVersion = new TextDecoder().decode(btCounterSoftwareVersion); //convert the utf-8 characters into a string (i.e. adds a null to the end)
+							console.log("Counter software version " + btCounterSoftwareVersion);
+						//New code here which requires modifications to the Counter PCB software will check the PCB software version is the same or higher before executing the new code>
+							btCounterSoftwareVersion = parseFloat(btCounterSoftwareVersion); //Now convert the string to an floating point value to be checked before executing new code
+						//Now, ask for the count service
 							btError = "D";
 							btService = await btServer.getPrimaryService(btServiceId);
-							
       			//>Got the service, ask for count characteristic>
 							btError = "E";
 							btCharacteristic=await btService.getCharacteristic(btCharacteristicId);
-							
       			//>>> Got count characteristic (which should have read, write, and notify attributes enabled so start count notifications >>>
 							btError = "F";
       				await btCharacteristic.startNotifications();
@@ -819,7 +834,7 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 							await btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
 						//ensure counter is reset>
 							btError = "H";
-							let resetVal=Uint8Array.of(0,0,0,0,0,0); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
+							let resetVal=Uint8Array.of(0,0,0,0,0,0); //counter will reset tip count and its time values when it receives that as long as bytes 2 and 3 (the time value) is zero (otherwise this value is used to sync local time with coutner time)
 							await btCharacteristic.writeValue(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
 						//Update display to indicate the device is connected>
 							button.innerText=button.textContent=button1SecondaryString; 				//>change button1 from 'Connect' 'Disconnect' (button1 is still selected from if statement above)
@@ -1248,7 +1263,9 @@ function updateResultLogTable(resultStartPosition)
 			}
 
 	}
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< updateResultLogTable <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< updateResultLogTable <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Display functions >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> displayCount >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   function displayCount() //display received count>
 		{
@@ -1360,18 +1377,6 @@ function updateResultLogTable(resultStartPosition)
       	document.getElementById("localTimeValue").innerHTML=localTimeString;
    	}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< localTimeDisplay <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> syncTime >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	async function syncTime() //the counter's time and the local time of the app's device can slowly get out of sync so periodically set counters time to the app devices localTime
-		{
-			let syncVal = Uint16Array.of(0,0,0); //create an array of 3 intergers, all 0
-			syncVal[1] = Math.floor(Date.now()/1000) - startTime; //put the local time (in seconds) where the received tip time data goes 
-			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0) && btDevice.gatt.connected ) //don't send if not connected or number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
-				{
-//					console.log("Syncing Time " + syncVal[1]);
-					await btCharacteristic.writeValue(syncVal); //send the time to the counter
-				}
-		}
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< syncTime <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	function enableDisableButton(buttonID,enabledDisabled)
 		{
 		let colour = "blue"
@@ -1451,11 +1456,38 @@ function displaySection2Status(statusString,colour)
 function blankCount()
 	{
 		document.getElementById("countValue").innerHTML="---";
-    	document.getElementById("timeValue").innerHTML="--:--";
-    	document.getElementById("batteryValue").innerHTML = "Counter";
-    	document.getElementById("localTimeValue").innerHTML="--:--";
+    document.getElementById("timeValue").innerHTML="--:--";
+    document.getElementById("batteryValue").innerHTML = "Counter";
+    document.getElementById("localTimeValue").innerHTML="--:--";
 	}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< blankCount <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Display functions <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> syncTime >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	async function syncTime() //the counter's time and the local time of the app's device can slowly get out of sync so periodically set counters time to the app devices localTime
+		{
+			let syncVal = Uint16Array.of(0,0,0); //create an array of 3 intergers, all 0
+			syncVal[1] = Math.floor(Date.now()/1000) - startTime; //put the local time (in seconds) where the received tip time data goes 
+			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0) && btDevice.gatt.connected ) //don't send if not connected or number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
+				{
+					await btCharacteristic.writeValue(syncVal); //send the time to the counter
+				}
+		}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< syncTime <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> counterSoftwareIsCompatible >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//Used to check that the currently connected Counter has software compatible with newly added code here
+ function counterSoftwareIsCompatible(minCounterSoftwareVersion)
+ 	{
+		if(btCounterSoftwareVersion >= minCounterSoftwareVersion)
+			{
+				return 1;
+			}
+		else
+			{
+				return 0;
+			}
+	}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< counterSoftwareIsCompatible <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> onDisconnect >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	async function onDisconnect(event)
 	{
@@ -1494,9 +1526,9 @@ function blankCount()
 										if(document.getElementById('button2').innerHTML == button2PrimaryString) //if count hasn't been stopped
 											{
 												await btCharacteristic.startNotifications();
-        		  								btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
+        		  					btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
 												btValue = await btCharacteristic.readValue();
-  		    									displayCount();
+												displayCount();
 											}
 										else
 											{
