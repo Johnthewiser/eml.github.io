@@ -795,11 +795,11 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 						//>Choose device>
 							btDevice = await navigator.bluetooth.requestDevice
 								({
-							acceptAllDevices:true,
-//      						filters:
-//      							[
-//      								 {services: [btServiceId]}
-//      							],
+//							acceptAllDevices:true,
+      						filters:
+      							[
+      								 {services: [btServiceId]}
+      							],
       									optionalServices: [btServiceId],
 												optionalServices: [btGenericAccessServiceId]
       					});
