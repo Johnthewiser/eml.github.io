@@ -467,7 +467,7 @@
 		</div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Status Line 1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 <!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Software version number >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   -->
-		<span class="spanStyle3">V</span><span id="versionNumber" class="spanStyle3">0.9</span>
+		<span class="spanStyle3">V</span><span id="versionNumber" class="spanStyle3">0.10</span>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Software version number <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 </div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End of Section1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	-->
@@ -798,7 +798,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 //							acceptAllDevices:true,
       						filters:
       							[
-      								 {services: [btServiceId]}
+//      								 {services: [btServiceId]}
+      								{name: "EMLCount"}
       							],
       									optionalServices: [btServiceId],
 												optionalServices: [btGenericAccessServiceId]
