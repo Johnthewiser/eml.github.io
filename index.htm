@@ -840,7 +840,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 						//ensure counter is reset>
 							btError = "H";
 							let resetVal=Uint8Array.of(0,0,0,0,0,0); //counter will reset tip count and its time values when it receives that as long as bytes 2 and 3 (the time value) is zero (otherwise this value is used to sync local time with coutner time)
-							await btCharacteristic.writeValue(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
+//							await btCharacteristic.writeValue(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
+							await btCharacteristic.writeValueWithResponse(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
 						//Update display to indicate the device is connected>
 							button.innerText=button.textContent=button1SecondaryString; 				//>change button1 from 'Connect' 'Disconnect' (button1 is still selected from if statement above)
 							displaySection1Status("Waiting for count. Update Site/Raingauge/etc?","black");
@@ -988,7 +989,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
       				await btCharacteristic.startNotifications(); //start notifications again (when button2 saying 'Stop Count' was pressed it will have stopped notifications from the counter)
       				btCharacteristic.addEventListener('characteristicvaluechanged',handleCountNotification);
 							let resetVal=Uint8Array.of(0,0,0,0,0,0); //device will reset tip count and its time values to 0 on receipt of this write regardless of values written
-      				await btCharacteristic.writeValue(resetVal); //send a reset instruction to the counter which will respond with a noticifion which will update the counter display to all zeros
+//      				await btCharacteristic.writeValue(resetVal); //send a reset instruction to the counter which will respond with a noticifion which will update the counter display to all zeros
+							await btCharacteristic.writeValueWithResponse(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
 						}
       		catch(error)
       			{
@@ -1056,13 +1058,13 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 					resultLogString += raingaugeDetailsString + csvSeparator;
 					resultLogString += bottleVolumeString + csvSeparator;
 					resultLogString += nozzleSizeString  + csvSeparator;
-					console.log("1nozzleSizeString " + nozzleSizeString);
+//					console.log("1nozzleSizeString " + nozzleSizeString);
 					resultLogString += countString + csvSeparator;
 					resultLogString += countTimeString+ "\r\n";
 					 
 				//store the result log in case API is shut before saving results log to CSV file>
-							console.log("2gaugeIDString " + gaugeIDString);
-							console.log("2nozzleSizeString " + nozzleSizeString);
+//							console.log("2gaugeIDString " + gaugeIDString);
+//							console.log("2nozzleSizeString " + nozzleSizeString);
 					try
 						{
 							localStorage.setItem("ResultLogString", resultLogString);
@@ -1070,8 +1072,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 							localStorage.setItem("raingaugeDetailsString", raingaugeDetailsString);
 							localStorage.setItem("gaugeIDString", gaugeIDString);
 							localStorage.setItem("bottleVolumeString", bottleVolumeString);
-							console.log("3gaugeIDString " + gaugeIDString);
-							console.log("3nozzleSizeString " + nozzleSizeString);
+//							console.log("3gaugeIDString " + gaugeIDString);
+//							console.log("3nozzleSizeString " + nozzleSizeString);
 							localStorage.setItem("nozzleSizeString", nozzleSizeString);
 						}
 					catch(error) //
@@ -1475,7 +1477,9 @@ function blankCount()
 			syncVal[1] = Math.floor(Date.now()/1000) - startTime; //put the local time (in seconds) where the received tip time data goes 
 			if(syncVal[1] != 0 && ((syncVal[1]%60) == 0) && btDevice.gatt.connected ) //don't send if not connected or number of seconds is 0 or counter will see it as a reset command and only sync as the minutes value increases (i.e. once per minute)
 				{
-					await btCharacteristic.writeValue(syncVal); //send the time to the counter
+//					await btCharacteristic.writeValue(syncVal); //send the time to the counter
+					await btCharacteristic.writeValueWithResponse(resetVal); //tell the counter to reset its tip count and time the counter should respeond with a notificaiton with count=0 time=0
+
 				}
 		}
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< syncTime <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
