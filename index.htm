@@ -467,7 +467,7 @@
 		</div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Status Line 1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 <!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Software version number >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   -->
-		<span class="spanStyle3">V</span><span id="versionNumber" class="spanStyle3">0.13</span>
+		<span class="spanStyle3">V</span><span id="versionNumber" class="spanStyle3">0.14</span>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Software version number <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   -->
 </div>
 <!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End of Section1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	-->
@@ -799,12 +799,12 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 //							acceptAllDevices:true,
       						filters:
       							[
-//      								{services: [btServiceId]}
-      								{services: [btServiceId, btGenericAccessServiceId]}
+      								{services: [btServiceId]}
+//      								{services: [btServiceId, btGenericAccessServiceId]}
 												//      								{name: "EMLCount"}
       							],
 //      									optionalServices: [btServiceId],
-//												optionalServices: [btGenericAccessServiceId]
+												optionalServices: [btGenericAccessServiceId]
       					});
       			//>start disconnection notifications in case disconnection happens unexpectedly>
 							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
@@ -815,15 +815,15 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 						//Connected, ask for the generic attribute service
 							btError = "I";
 //							btService = await btServer.getPrimaryService(btGenericAccessServiceId);
-							console.log("btGenericAccessServiceId " + btService.uuid);
+//							console.log("btGenericAccessServiceId " + btService.uuid);
       			//>Got the service, ask for software revision characteristic>
-							btError = "J";
-							btCharacteristic = await btService.getCharacteristic(btCounterSWVCharacteristicId);
-							btCounterSoftwareVersion = await btCharacteristic.readValue(); //read the received software version characters
-							btCounterSoftwareVersion = new TextDecoder().decode(btCounterSoftwareVersion); //convert the utf-8 characters into a string (i.e. adds a null to the end)
+//							btError = "J";
+//							btCharacteristic = await btService.getCharacteristic(btCounterSWVCharacteristicId);
+//							btCounterSoftwareVersion = await btCharacteristic.readValue(); //read the received software version characters
+//							btCounterSoftwareVersion = new TextDecoder().decode(btCounterSoftwareVersion); //convert the utf-8 characters into a string (i.e. adds a null to the end)
 //							console.log("Counter software version " + btCounterSoftwareVersion);
 						//New code here which requires modifications to the Counter PCB software will check the PCB software version is the same or higher before executing the new code>
-							btCounterSoftwareVersion = parseFloat(btCounterSoftwareVersion); //Now convert the string to an floating point value to be checked before executing new code
+//							btCounterSoftwareVersion = parseFloat(btCounterSoftwareVersion); //Now convert the string to an floating point value to be checked before executing new code
 						//Now, ask for the count service
 							btError = "D";
 							btService = await btServer.getPrimaryService(btServiceId);
