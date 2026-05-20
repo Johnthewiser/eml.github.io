@@ -625,7 +625,7 @@ Past Counts
       let btDevice = null;
      //let	btServiceId = '19b10010-e8f2-537e-4f6c-d104768a1214';				//Arduino 'EML Rain Gauge' Count service
       let btServiceId='c1a8da08-1801-4e76-9a66-fe24dcdd5392';					//'EML Bluetooth Counter' Count service
-			let btGenericAccessServiceId= 0x1800;														//Generic access service for reading software revision number
+			let btGenericAccessServiceId = 0x1800;														//Generic access service for reading software revision number
      //let	btCharacteristicId = '19b10012-e8f2-537e-4f6c-d104768a1214';	//Arduino 'EML Rain Gauge' Count characteristic
       let btCharacteristicId='aec433d5-d7da-456e-bc1d-300fa61f0208';		//'EML Bluetooth Counter' Count characteristic
 			let btCounterSWVCharacteristicId=0x2A28; //Generic attribute - software revision number
@@ -799,11 +799,12 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 //							acceptAllDevices:true,
       						filters:
       							[
-      								 {services: [btServiceId]}
-//      								{name: "EMLCount"}
+//      								{services: [btServiceId]}
+      								{services: [btServiceId, btGenericAccessServiceId]}
+												//      								{name: "EMLCount"}
       							],
 //      									optionalServices: [btServiceId],
-												optionalServices: [btGenericAccessServiceId]
+//												optionalServices: [btGenericAccessServiceId]
       					});
       			//>start disconnection notifications in case disconnection happens unexpectedly>
 							btDevice.addEventListener('gattserverdisconnected',onDisconnect); //function call: onDisconnect
@@ -813,8 +814,8 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 
 						//Connected, ask for the generic attribute service
 							btError = "I";
-	//						console.log("generic_access " + generic_access);
-							btService = await btServer.getPrimaryService(btGenericAccessServiceId);
+//							btService = await btServer.getPrimaryService(btGenericAccessServiceId);
+							console.log("btGenericAccessServiceId " + btService.uuid);
       			//>Got the service, ask for software revision characteristic>
 							btError = "J";
 							btCharacteristic = await btService.getCharacteristic(btCounterSWVCharacteristicId);
@@ -826,6 +827,7 @@ document.getElementById('nozzleSize').addEventListener('input', function ()
 						//Now, ask for the count service
 							btError = "D";
 							btService = await btServer.getPrimaryService(btServiceId);
+//							console.log("btServiceId " + btService.uuid);
       			//>Got the service, ask for count characteristic>
 							btError = "E";
 							btCharacteristic=await btService.getCharacteristic(btCharacteristicId);
